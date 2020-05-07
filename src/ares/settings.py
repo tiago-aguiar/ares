@@ -11,12 +11,40 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import sys
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
+if sys.version_info.major > 2:
+    from configparser import RawConfigParser
+else:
+    from ConfigParser import RawConfigParser
+
+config = RawConfigParser()
+
+if os.getenv('GAE_APPLICATION', None):
+    config.read(os.path.join(BASE_DIR, "ares/prod.ini"))
+    DATABASES = {
+        'default': {
+            'ENGINE': config.get('database', 'ENGINE'),
+            'NAME': config.get('database', 'NAME'),
+            'USER': config.get('database', 'USER'),
+            'PASSWORD': config.get('database', 'PASSWORD'),
+            'HOST': config.get('database', 'HOST'),
+        }
+    }
+else:
+    config.read(os.path.join(BASE_DIR, "ares/dev.ini"))
+    DATABASES = {
+        'default': {
+            'ENGINE': config.get('database', 'ENGINE'),
+            'NAME': config.get('database', 'NAME'),
+            'USER': config.get('database', 'USER'),
+            'PASSWORD': config.get('database', 'PASSWORD'),
+            'HOST': config.get('database', 'HOST'),
+            'PORT': config.get('database', 'PORT'),
+        }
+    }
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '+@x48vv-m!lmj$n$(zt-6%ww$*)krva5y(fb1050y6d1wh33)0'
@@ -24,6 +52,8 @@ PAGE_INDEX = 0
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ALLOWED_HOSTS = ['*']
+
+DEBUG = config.getboolean('debug', 'DEBUG')
 
 # Application definition
 
@@ -68,13 +98,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ares.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 
 # Password validation

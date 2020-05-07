@@ -1,0 +1,10 @@
+*.ttf
+*.woff
+*.woff2
+*.png
+*.jpg
+*.svg
+*.eot
+*.min.*
+*.pyc
+static_cdn/*
